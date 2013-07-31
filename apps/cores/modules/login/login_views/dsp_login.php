@@ -1,4 +1,6 @@
-<?php if (!defined('SERVER_ROOT')) {exit('No direct script access allowed');}?>
+<?php 
+define('SERVER_ROOT', 'F:\AppServ\www\sample\\');
+if (!defined('SERVER_ROOT')) {exit('No direct script access allowed');}?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -53,7 +55,7 @@
 			     <input name="txt_login_name" type="text"
                         class="inputbox" size="15"
                         onchange="this.form.txt_password.focus();"
-                        onkeypress="login(event);" autofocus="autofocus"
+                        onkeypress="login(event);" autofocus
                 />
 		     </div>
 			<div class="inputlabel">M&#7853;t kh&#7849;u</div>

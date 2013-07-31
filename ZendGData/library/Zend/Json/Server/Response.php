@@ -1,100 +1,73 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
+ * Zend Framework
  *
- * @link      http://github.com/zendframework/zf2 for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * LICENSE
+ *
+ * This source file is subject to the new BSD license that is bundled
+ * with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://framework.zend.com/license/new-bsd
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@zend.com so we can send you a copy immediately.
+ *
+ * @category   Zend
+ * @package    Zend_Json
+ * @subpackage Server
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license    http://framework.zend.com/license/new-bsd     New BSD License
+ * @version    $Id: Response.php 24464 2011-09-24 14:06:34Z mcleod@spaceweb.nl $
  */
 
-namespace Zend\Json\Server;
-
-use Zend\Json\Json;
-
-class Response
+/**
+ * @category   Zend
+ * @package    Zend_Json
+ * @subpackage Server
+ * @copyright  Copyright (c) 2005-2011 Zend Technologies USA Inc. (http://www.zend.com)
+ * @license    http://framework.zend.com/license/new-bsd     New BSD License
+ */
+class Zend_Json_Server_Response
 {
     /**
      * Response error
-     * @var null|Error
+     * @var null|Zend_Json_Server_Error
      */
-    protected $error;
+    protected $_error;
 
     /**
      * Request ID
      * @var mixed
      */
-    protected $id;
+    protected $_id;
 
     /**
      * Result
      * @var mixed
      */
-    protected $result;
+    protected $_result;
 
     /**
      * Service map
-     * @var Smd
+     * @var Zend_Json_Server_Smd
      */
-    protected $serviceMap;
+    protected $_serviceMap;
 
     /**
      * JSON-RPC version
      * @var string
      */
-    protected $version;
-
-    /**
-     * @var $args
-     */
-    protected $args;
-
-    /**
-     * Set response state
-     *
-     * @param  array $options
-     * @return Response
-     */
-    public function setOptions(array $options)
-    {
-        // re-produce error state
-        if (isset($options['error']) && is_array($options['error'])) {
-            $error = $options['error'];
-            $options['error'] = new Error($error['message'], $error['code'], $error['data']);
-        }
-
-        $methods = get_class_methods($this);
-        foreach ($options as $key => $value) {
-            $method = 'set' . ucfirst($key);
-            if (in_array($method, $methods)) {
-                $this->$method($value);
-            } elseif ($key == 'jsonrpc') {
-                $this->setVersion($value);
-            }
-        }
-        return $this;
-    }
-
-    /**
-     * Set response state based on JSON
-     *
-     * @param  string $json
-     * @return void
-     */
-    public function loadJson($json)
-    {
-        $options = Json::decode($json, Json::TYPE_ARRAY);
-        $this->setOptions($options);
-    }
+    protected $_version;
 
     /**
      * Set result
      *
      * @param  mixed $value
-     * @return Response
+     * @return Zend_Json_Server_Response
      */
     public function setResult($value)
     {
-        $this->result = $value;
+        $this->_result = $value;
         return $this;
     }
 
@@ -105,30 +78,30 @@ class Response
      */
     public function getResult()
     {
-        return $this->result;
+        return $this->_result;
     }
 
     // RPC error, if response results in fault
     /**
      * Set result error
      *
-     * @param  mixed $error
-     * @return Response
+     * @param  Zend_Json_Server_Error $error
+     * @return Zend_Json_Server_Response
      */
-    public function setError(Error $error = null)
+    public function setError(Zend_Json_Server_Error $error)
     {
-        $this->error = $error;
+        $this->_error = $error;
         return $this;
     }
 
     /**
      * Get response error
      *
-     * @return null|Error
+     * @return null|Zend_Json_Server_Error
      */
     public function getError()
     {
-        return $this->error;
+        return $this->_error;
     }
 
     /**
@@ -138,18 +111,18 @@ class Response
      */
     public function isError()
     {
-        return $this->getError() instanceof Error;
+        return $this->getError() instanceof Zend_Json_Server_Error;
     }
 
     /**
      * Set request ID
      *
      * @param  mixed $name
-     * @return Response
+     * @return Zend_Json_Server_Response
      */
     public function setId($name)
     {
-        $this->id = $name;
+        $this->_id = $name;
         return $this;
     }
 
@@ -160,22 +133,22 @@ class Response
      */
     public function getId()
     {
-        return $this->id;
+        return $this->_id;
     }
 
     /**
      * Set JSON-RPC version
      *
      * @param  string $version
-     * @return Response
+     * @return Zend_Json_Server_Response
      */
     public function setVersion($version)
     {
         $version = (string) $version;
         if ('2.0' == $version) {
-            $this->version = '2.0';
+            $this->_version = '2.0';
         } else {
-            $this->version = null;
+            $this->_version = null;
         }
 
         return $this;
@@ -188,7 +161,7 @@ class Response
      */
     public function getVersion()
     {
-        return $this->version;
+        return $this->_version;
     }
 
     /**
@@ -214,7 +187,8 @@ class Response
             $response['jsonrpc'] = $version;
         }
 
-        return \Zend\Json\Json::encode($response);
+        require_once 'Zend/Json.php';
+        return Zend_Json::encode($response);
     }
 
     /**
@@ -224,7 +198,7 @@ class Response
      */
     public function getArgs()
     {
-        return $this->args;
+        return $this->_args;
     }
 
     /**
@@ -235,30 +209,30 @@ class Response
      */
     public function setArgs($args)
     {
-        $this->args = $args;
+        $this->_args = $args;
         return $this;
     }
 
     /**
      * Set service map object
      *
-     * @param  Smd $serviceMap
-     * @return Response
+     * @param  Zend_Json_Server_Smd $serviceMap
+     * @return Zend_Json_Server_Response
      */
     public function setServiceMap($serviceMap)
     {
-        $this->serviceMap = $serviceMap;
+        $this->_serviceMap = $serviceMap;
         return $this;
     }
 
     /**
      * Retrieve service map
      *
-     * @return Smd|null
+     * @return Zend_Json_Server_Smd|null
      */
     public function getServiceMap()
     {
-        return $this->serviceMap;
+        return $this->_serviceMap;
     }
 
     /**
@@ -271,3 +245,4 @@ class Response
         return $this->toJson();
     }
 }
+

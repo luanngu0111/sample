@@ -31,7 +31,158 @@ class user_Model extends Model {
      * Lấy danh sách Đơn vị cấp dưới
      * @param Int $ou_id ID đơn vị
      */
+	//lam tu day ne
+	public function qry_all_user_by_alphabet()
+	{
+		$sql = "select c_name, c_login_name, c_status, c_job_title from t_cores_user order by c_name asc";
+		return $this->db->getAll($sql);
+	}
+	
+	public function qry_all_user_by_job()
+	{
+		$sql = "select c_name, c_login_name, c_status, c_job_title from t_cores_user order by c_job_title asc";
+		return $this->db->getAll($sql);
+	}
+	
+	public function detail_from_name($name)
+	{
+		$sql = "select u.c_name, o.c_name, u.c_job_title  from epar.t_cores_user u, epar.t_cores_ou o where u.fk_ou = o.pk_ou and u.c_name = ?";
+		$params = array($name);
+		return $this->db->getRow($sql, $params);
+	}
+	
+	public function detail_from_id($usr_id)
+	{
+		$sql = "select * from t_cores_user where c_login_name = ?";
+		$params = array($usr_id);
+		return $this->db->getRow($sql, $params);
+	}
+	
+	public function list_usr_avail()
+	{
+		$sql = "select c_login_name from t_cores_user where c_status = 1";
+		return $this->db->getAll($sql);
+	}
+	
+	public function time_offline($usr_id)
+	{
+		$sql = "select c_name, c_login_name, c_job_title, datediff(curdate(), c_last_login_date) as time_off from t_cores_user where c_login_name=?";
+		$params = array($usr_id);
+		return $this->db->getCol($sql, 'time_off', $params);
+	}
+	
+	public function last_login_date($usr_id)
+	{
+		$sql = "select c_name, c_login_name, c_job_title, c_last_login_date from t_cores_user where c_login_name=?";
+		$params = array($usr_id);
+		return $this->db->getCol($sql, 'c_last_login_date', $params);
+	}
+	//lam toi day rui ne
+	
+	//Chuan bi toi phan Calendar ne
+	public function load_init_cal($email, $password)
+	{
+		$path = SERVER_ROOT.'\\ZendGData\\library\\';
+		$oldpath = set_include_path($path);
+		require_once 'Zend/Loader.php';
 
+		Zend_Loader::loadClass('Zend_Gdata');
+		Zend_Loader::loadClass('Zend_Gdata_ClientLogin');
+		Zend_Loader::loadClass('Zend_Gdata_Calendar');
+		Zend_Loader::loadClass('Zend_Http_Client');
+		
+		$gcal = Zend_Gdata_Calendar::AUTH_SERVICE_NAME;
+		$user = $email;
+		$pass = $password;		
+		
+		$client = Zend_Gdata_ClientLogin::getHttpClient($user, $pass, $gcal);
+		$gcal = new Zend_Gdata_Calendar($client);
+		return $gcal;
+	}
+	
+	public function g_view_event($email, $password)
+	{
+		$gcal = load_init_cal($email, $password);
+		
+		$query = $gcal->newEventQuery();
+		$query->setUser('default');
+		$query->setVisibility('private');
+		$query->setProjection('basic');
+		$query->setOrderby('starttime');
+		if(isset($_GET['q'])) {
+		  $query->setQuery($_GET['q']);      
+		}
+		
+		try {
+		  $feed = $gcal->getCalendarEventFeed($query);
+		  return $feed; //ds su kien
+		} catch (Zend_Gdata_App_Exception $e) {
+		  echo "Error: " . $e->getResponse();
+		}
+		
+	}
+	
+	public function g_edit_event($id, $email, $password)
+	{
+		//id la id cua su kien
+		$gcal = load_init_cal($email, $password);
+		// get event details
+		
+		  if (isset($id)) {
+			try {          
+			  $event = $gcal->getCalendarEventEntry('http://www.google.com/calendar/feeds/default/private/full/' . $_GET['id']);
+			  return $event;
+			} catch (Zend_Gdata_App_Exception $e) {
+			  echo "Error: " . $e->getResponse();
+			}
+		  } else {
+			  die('ERROR: No event ID available!');  
+		  }  
+	}
+	
+	public function g_delete_event($id, $email, $password)
+	{
+		//id la id cua su kien
+		$gcal = load_init_cal($email, $password);
+		if (isset($id)) {
+		  try {          
+			  $event = $gcal->getCalendarEventEntry('http://www.google.com/calendar/feeds/default/private/full/' . $_GET['id']);
+			  $event->delete();
+		  } catch (Zend_Gdata_App_Exception $e) {
+			  echo "Error: " . $e->getResponse();
+		  }        
+		  echo 'Sự kiện đã xóa thành công!';  
+		} else {
+		  echo 'Không có sự kiện nào';
+		}
+	}
+	
+	public function g_add_event($title, $startdate, $enddate, $place, $content, $email, $password)
+	{
+		$gcal = load_init_cal($email, $password);
+		
+		  // construct event object
+		  // save to server      
+		  try {
+			$event = $gcal->newEventEntry();        
+			$event->title = $gcal->newTitle($title);        
+			
+			$when = $gcal->newWhen();
+			$when->startTime = $startdate;
+			$when->endTime = $enddate;
+			$event->when = array($when);        
+			
+			$where = $gcal->newWhere($place);
+			$event->where = array($where);
+			$event->content = $gcal->newContent($content);
+		
+			$gcal->insertEvent($event);  
+		  } catch (Zend_Gdata_App_Exception $e) {
+			echo "Error: " . $e->getResponse();
+		  }
+		  echo 'Sự kiện đã thêm thành công!';  
+		
+	}
     public function qry_all_sub_ou($ou_id)
     {
         $stmt = 'Select PK_OU, FK_OU, C_NAME, C_ORDER From t_cores_ou Where FK_OU=? Order By C_INTERNAL_ORDER';

@@ -25,6 +25,17 @@ class login_Controller extends Controller {
         @session::init();
         session::destroy();
         #header('location:' . SITE_ROOT);
+		$link = mysql_connect("localhost", "root", "root");
+		mysql_select_db($database, $link);
+		
+		$user = $_POST['email'];
+		$sql = "update information set kind=0 where username = '$user'";
+		$result = mysql_query($sql, $link);
+		if ($result)
+		{
+			$affectedRow = mysql_affected_rows();
+			echo $user." đã đăng xuất";
+		}
         $this->dsp_login();
     }
 }

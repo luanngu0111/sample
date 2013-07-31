@@ -11,9 +11,11 @@
  
 ini_set('date.timezone','Asia/Ho_Chi_Minh');
 
+defined ('__DIR__') OR define('__DIR__', 'F:\AppServ\www\sample\\');
 define ('DS', DIRECTORY_SEPARATOR);
+//define('DS', '\\');
 define('SERVER_ROOT', __DIR__ . DS);
-
+//define('SERVER_ROOT', 'F:\AppServ\www\sample\\');
 require_once ('config.php');
 require_once ('const.php');
 

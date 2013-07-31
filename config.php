@@ -12,18 +12,18 @@
 if (!defined('SERVER_ROOT')) exit('No direct script access allowed');?>
 <?php
 define('DEBUG_MODE', 0);
-define('SITE_ROOT','/yen-bai/');
 
+define('http://localhost/','/sample/');
 define('DATABASE_TYPE','MYSQL');//Be MSSQL or ORACLE or MYSQL
 
 //Oracle Setting
-define('CONST_ORACLE_DSN','oci8://mvcxml:mvcxml@172.16.1.252/XE');
+//define('CONST_ORACLE_DSN','mysql://root:root@localhost/epar');
 
 //SQL Server Setting
-define('CONST_MSSQL_DSN','PROVIDER=SQLOLEDB;DRIVER={SQL Server};SERVER=172.16.1.252;DATABASE=Go-Office;UID=sa;PWD=P@ssw0rd;');
+//define('CONST_MSSQL_DSN','PROVIDER=SQLOLEDB;DRIVER={SQL Server};SERVER=172.16.1.252;DATABASE=Go-Office;UID=sa;PWD=P@ssw0rd;');
 
 //MySQL Server Setting
-define('CONST_MYSQL_DSN','mysql://go-office:123456@172.16.1.200/yen-bai');
+define('CONST_MYSQL_DSN','mysql://root:root@localhost/epar');
 
 //Tien to bang
 define('_CONST_TABLE_PREFIX','t_');
